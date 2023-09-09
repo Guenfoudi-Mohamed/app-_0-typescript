@@ -3,7 +3,7 @@
 // === set pattern for input task 
 const inpTask = document.querySelector('body .container .form .head .inps input.inpTask') as HTMLInputElement;
 inpTask.addEventListener('keyup',() : void =>  {
-    const regEx : RegExp = /^[a-zA-Z0-9]+\s*\W*/;
+    const regEx : RegExp = /^\W*[a-zA-Z0-9]+\s*\W*/;
     inpTask.value = inpTask.value.trimLeft();
     const inpTestValue : boolean = regEx.test(inpTask.value);
     if(inpTestValue === false){
@@ -20,11 +20,11 @@ inpTask.addEventListener('keyup',() : void =>  {
 // === event for button add Task
 const btnAddTask = document.querySelector('body .container .form .head .inps input.btnAdd') as HTMLButtonElement;
 btnAddTask.onclick = function(){
-    if(inpTask.classList.contains('valid')){
+    if(inpTask.classList.contains('valid') === true){
         const obj = new Task(inpTask.value);
         inpTask.value = ``;
         inpTask.focus();
-        inpTask.classList.remove('valid','invalid');
+        inpTask.classList.remove('valid');
     }else{
         inpTask.classList.add('invalid');
         inpTask.value = ``;
@@ -99,11 +99,12 @@ class Task{
             li.setAttribute('data-idTask',this.id);
             li.innerHTML = `<a class="task">${this.valueTask}</a><a class="icon icon_edite btn btnEdite" title="Edite"><i class="fa-solid fa-pen"></i></a><a class="icon icon_delete btn btnDelete" title="Delete"><i class="fa-solid fa-trash"></i></a>`;
             list.insertBefore(li,list.children[0]);
-            Task.btnDeleteTask(li.querySelector('.btnDelete') as HTMLLIElement,this.id);    //add event for button delete
+            Task.btnEditeTask(li.querySelector('a.btnEdite') as HTMLAnchorElement,{id:this.id,value:this.valueTask});    //add event for button edite
+            Task.btnDeleteTask(li.querySelector('a.btnDelete') as HTMLAnchorElement,this.id);    //add event for button delete
     }
 
     // display Tasks
-    static displayTasks() : void{
+    static displayTasks() : void {
         let arrayObjTasks : string|undefined|null;
         if(localStorage.getItem('arrayObjTasks') != null){
             arrayObjTasks = localStorage.getItem('arrayObjTasks');
@@ -116,12 +117,13 @@ class Task{
             li.setAttribute('data-idTask',Task.arrayObjTasks[i].id);
             li.innerHTML = `<a class="task">${Task.arrayObjTasks[i].value}</a><a class="icon icon_edite btn btnEdite" title="Edite"><i class="fa-solid fa-pen"></i></a><a class="icon icon_delete btn btnDelete" title="Delete"><i class="fa-solid fa-trash"></i></a>`;
             list.insertBefore(li,list.children[0]);
-            Task.btnDeleteTask(li.querySelector('.btnDelete') as HTMLLIElement,Task.arrayObjTasks[i].id);
+            Task.btnEditeTask(li.querySelector('.btnEdite') as HTMLAnchorElement,Task.arrayObjTasks[i]);
+            Task.btnDeleteTask(li.querySelector('.btnDelete') as HTMLAnchorElement,Task.arrayObjTasks[i].id);
         };
     }
 
     // add event for button delete
-    static btnDeleteTask = function(btnDelete:HTMLLIElement,objId:string) : void{
+    private static btnDeleteTask = function(btnDelete:HTMLAnchorElement,objId:string) : void {
         btnDelete.addEventListener('click',function(){
             console.log(btnDelete,objId);
             // remove obj from localStorage 'arrayObjTasks'
@@ -156,10 +158,107 @@ class Task{
             }
         });
     }
+
+    // add event for button edite
+    private static btnEditeTask = function(btnEdite:HTMLAnchorElement,objTask:{id:string,value:string}) : void{
+        btnEdite.addEventListener('click',function(){
+            const inpTask = document.querySelector('body .container .form .head .inps input.inpTask') as HTMLInputElement; 
+            inpTask.classList.remove('invalid');
+            inpTask.classList.remove('valid');
+            inpTask.value = ``;
+            // get valueTask of objTask from localStorage'arrayObjTasks'
+            let valueTask : string|undefined;
+            Task.arrayObjTasks = JSON.parse(localStorage.getItem('arrayObjTasks') as string);
+            for(let i : number = 0;i<Task.arrayObjTasks.length;i++){
+                if(Task.arrayObjTasks[i].id === objTask.id){
+                    valueTask = Task.arrayObjTasks[i].value;
+                    break;
+                }
+            }
+            // display popUp Edite Task
+            const div = document.createElement('div') as HTMLDivElement;
+            div.className = 'popUpEditeTask';
+            div.innerHTML = `<div class="formEditeTask" >
+                                <textarea class="textarea valid" maxlength="100" autofocus="" focus="">${valueTask}</textarea>
+                                <div class="inpButtons" >
+                                    <input type="button" class="btn btnCancel" value="Cancel" title="cancel"><input type="button" class="btn btnSave" value="save" title="save">
+                                </div>
+                            </div>`;
+            document.body.children[0].append(div);
+            // add event for button cancel 
+            const btnCancel = div.querySelector('.formEditeTask .inpButtons .btn.btnCancel') as HTMLInputElement;
+            btnCancel.addEventListener('click',function(){
+                inpTask.focus();
+                div.remove();
+            });
+            // add event for textarea check value 
+            const textarea = div.querySelector('.formEditeTask textarea.textarea') as HTMLTextAreaElement;  //textArea html element
+            textarea.focus();
+            textarea.addEventListener('keyup',() : void =>  {
+                const regEx : RegExp = /^\W*[a-zA-Z0-9]+\s*\W*/;
+                textarea.value = textarea.value.trimLeft();
+                const textareaTestValue : boolean = regEx.test(textarea.value);
+                if(textareaTestValue === false){
+                    textarea.classList.remove('valid');
+                    textarea.classList.add('invalid');
+                }
+                else if(textareaTestValue){
+                    textarea.classList.remove('invalid');
+                    textarea.classList.add('valid');
+                }
+            });
+            // add event for btnSave 
+            const btnSave = div.querySelector('.formEditeTask .inpButtons .btn.btnSave') as HTMLInputElement;
+            btnSave.addEventListener('click',function(){
+                const stockValue : string = textarea.value;
+                if(textarea.classList.contains('valid') === true && textarea.value.trim() === valueTask){ // if the textarea has same value
+                    console.error('wtf Change the value !!');
+                    textarea.focus();
+                    textarea.value = 'Change the value !!';
+                    textarea.classList.remove('valid')
+                    textarea.classList.add('invalid')
+                    setTimeout(function(){
+                        textarea.value = stockValue;
+                    },500);
+                }
+                else if(textarea.classList.contains('invalid') == true && textarea.value.length === 0){ // if the textarea is empty
+                    textarea.value = 'Fill in the input field';
+                    setTimeout(function(){
+                        textarea.value = stockValue;
+                        textarea.focus();
+                    },500);
+                }
+                else if(textarea.classList.contains('valid') === true && textarea.value.trim() !== valueTask){
+                    // upDate data 'value' => obj in localStorage
+                    Task.arrayObjTasks = JSON.parse(localStorage.getItem('arrayObjTasks') as string);   
+                    for(let i :number = 0;i<Task.arrayObjTasks.length;i++){
+                        if(objTask.id === Task.arrayObjTasks[i].id){
+                            Task.arrayObjTasks[i].value = textarea.value;
+                            localStorage.removeItem('arrayObjTasks');
+                            localStorage.setItem('arrayObjTasks',JSON.stringify(Task.arrayObjTasks));
+                            break;
+                        }
+                    }
+                    // upDate data in element task Obj 'list.Item' Element
+                    const list = document.querySelector('body .container .form .content .list') as HTMLUListElement;
+                    for(let i : number = 0;i<list.childElementCount;i++){
+                        if(list.children[i].getAttribute('data-idtask') === objTask.id){
+                            const a = list.children[i].querySelector('.task') as HTMLAnchorElement;
+                            a.textContent = textarea.value;
+                            break;
+                        }
+                    }
+                    div.remove();
+                }
+            });
+        });
+    }
 }
 
 window.addEventListener('DOMContentLoaded',function() : void {
     Task.displayTasks();
     inpTask.value = ``;
+    inpTask.classList.remove('valid');
+    inpTask.classList.remove('invalid');
     inpTask.focus();
 });
