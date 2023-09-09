@@ -1,0 +1,34 @@
+*, ::after, ::before{margin: 0;padding: 0;outline: none;list-style: none;text-decoration: none;box-sizing: border-box;}
+:root{
+    --clr-cl0:#CCD5AE;
+    --clr-cl1:#E9EDC9;
+    --clr-cl2:#FEFAE0;
+    --clr-cl3:#FAEDCD;
+}
+html, body{height: 100%;}
+/* start body */
+body{background-image:linear-gradient(-45deg , var(--clr-cl0), var(--clr-cl1),var(--clr-cl0));}
+    /* start container */
+body .container{height: inherit;max-width: 1440px;margin: 0px auto;display: grid;place-items: center;}
+        /* start form */
+body .container .form{background-color: var(--clr-cl0);overflow: hidden;border: 2px solid rgba(0, 0, 0, 0.5);}
+body .container .form .head{border-bottom: 1px solid black;}
+body .container .form .head h3{padding: 15px 0px;text-align: center;font-family: sans-serif;}
+body .container .form .head .inps{margin: 0px auto;width: fit-content;display: flex;}
+body .container .form .head .inps input{display: inline-block;padding: 10px;border-radius: 0;border: none;font-weight: bold;border-top: 1px solid rgba(0, 0, 0, 0.5);}
+body .container .form .head .inps input.inpTask{width: 230px;}
+body .container .form .head .inps input.inpTask.valid{background-color: rgba(0, 128, 0, 0.8);}
+body .container .form .head .inps input.inpTask.invalid{background-color: rgba(255, 0, 0, 0.5);}
+body .container .form .head .inps input.btnAdd{width: 100px;cursor: pointer;background-color: var(--clr-cl2);border-left: 1px solid rgba(0, 0, 0, 0.5);}
+body .container .form .head .inps input.btnAdd:hover{background-color:var(--clr-cl3);}
+            /* start content */
+body .container .form .content {height:calc(300px - 88px);overflow: hidden;}
+body .container .form .content .list{padding: 15px;height: 100%;overflow-y: auto;scroll-snap-type: y mandatory;}
+body .container .form .content .list li.item{padding: 10px 0px;font-size: 18px;border-bottom: 1px solid rgba(0, 0, 0, 0.3);display: flex;align-items: center;margin-top: 5px;scroll-snap-align: center;}
+body .container .form .content .list li.item .task{font-family: sans-serif;max-width: 200px;}
+body .container .form .content .list li.item .btn{color:var(--clr-cl2);cursor: pointer;-webkit-text-stroke: 1.5px rgba(0, 0, 0, 0.5);}
+body .container .form .content .list li.item .btn:first-of-type{margin-left: auto;margin-right: 10px;}
+body .container .form .content .list li.item .btnEdite{margin-left: auto;margin-right: 10px;}
+body .container .form .content .list li.item .btn:hover{color:var(--clr-cl3);}
+
+
